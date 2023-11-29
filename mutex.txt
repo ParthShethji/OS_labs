@@ -1,0 +1,102 @@
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+class SharedBuffer {
+    private static final int BUFFER_SIZE = 5;
+    private int[] buffer = new int[BUFFER_SIZE];
+    private int count = 0;
+    private int in = 0;
+    private int out = 0;
+
+    private Lock mutex = new ReentrantLock();
+
+    public void produce(int item) throws InterruptedException {
+        mutex.lock(); // Enter critical section
+
+        while (count == BUFFER_SIZE) {
+            // Buffer is full, wait for space
+            mutex.unlock();
+            Thread.sleep(100); // Simulate waiting for space
+            mutex.lock();
+        }
+
+        buffer[in] = item;
+        in = (in + 1) % BUFFER_SIZE;
+        count++;
+
+        System.out.println("Produced: " + item + ", Count: " + count);
+
+        mutex.unlock(); // Exit critical section
+    }
+
+    public void consume() throws InterruptedException {
+        mutex.lock(); // Enter critical section
+
+        while (count == 0) {
+            // Buffer is empty, wait for items
+            mutex.unlock();
+            Thread.sleep(100); // Simulate waiting for items
+            mutex.lock();
+        }
+
+        int item = buffer[out];
+        out = (out + 1) % BUFFER_SIZE;
+        count--;
+
+        System.out.println("Consumed: " + item + ", Count: " + count);
+
+        mutex.unlock(); // Exit critical section
+    }
+}
+
+class Producer extends Thread {
+    private SharedBuffer buffer;
+
+    public Producer(SharedBuffer buffer) {
+        this.buffer = buffer;
+    }
+
+    @Override
+    public void run() {
+        try {
+            for (int i = 1; i <= 10; i++) {
+                buffer.produce(i);
+                sleep(1000); // Simulate some work
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class Consumer extends Thread {
+    private SharedBuffer buffer;
+
+    public Consumer(SharedBuffer buffer) {
+        this.buffer = buffer;
+    }
+
+    @Override
+    public void run() {
+        try {
+            for (int i = 1; i <= 10; i++) {
+                buffer.consume();
+                sleep(1500); // Simulate some work
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+public class PCMutex {
+    public static void main(String[] args) {
+        SharedBuffer buffer = new SharedBuffer();
+
+        Producer producer = new Producer(buffer);
+        Consumer consumer = new Consumer(buffer);
+
+        producer.start();
+        consumer.start();
+    }
+}

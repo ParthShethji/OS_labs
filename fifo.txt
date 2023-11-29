@@ -1,0 +1,46 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+public class FIFO {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of frames: ");
+        int numFrames = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("Enter the reference string : ");
+        String[] referenceString = scanner.nextLine().split(" ");
+
+        int[] pages = new int[referenceString.length];
+        for (int i = 0; i < referenceString.length; i++) {
+            pages[i] = Integer.parseInt(referenceString[i]);
+        }
+
+        int pageFaults = calculatePageFaults(pages, numFrames);
+        System.out.println("Number of Page Faults: " + pageFaults);
+    }
+
+    private static int calculatePageFaults(int[] pages, int numFrames) {
+        Queue<Integer> frameQueue = new LinkedList<>();
+        int pageFaults = 0;
+
+        for (int page : pages) {
+            if (!frameQueue.contains(page)) {
+                if (frameQueue.size() < numFrames) {
+                    frameQueue.add(page);
+                } else {
+                    frameQueue.poll(); // Remove the oldest page
+                    frameQueue.add(page);
+                }
+                pageFaults++;
+            }
+            // Print the current state of the frames
+            System.out.println("Frames: " + frameQueue);
+        }
+
+        return pageFaults;
+    }
+}
+Enter the number of frames: 4
+Enter the reference string (e.g., 1 2 3 4): 7 0 1 2 0 3 0 4 2 3 0 3 2

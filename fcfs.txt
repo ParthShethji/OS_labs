@@ -1,0 +1,73 @@
+import java.util.Arrays;
+import java.util.Scanner;
+
+class Process {
+    int processId;
+    int arrivalTime;
+    int burstTime;
+    int finishTime;
+    int turnaroundTime;
+    int waitingTime;
+
+    Process(int processId, int arrivalTime, int burstTime) {
+        this.processId = processId;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+    }
+}
+
+public class FCFS {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of processes: ");
+        int n = scanner.nextInt();
+
+        Process[] processes = new Process[n];
+
+        // Input process details
+        for (int i = 0; i < n; i++) {
+            System.out.println("Enter details for process " + (i + 1) + ":");
+            System.out.print("Arrival Time: ");
+            int arrivalTime = scanner.nextInt();
+            System.out.print("Burst Time: ");
+            int burstTime = scanner.nextInt();
+
+            processes[i] = new Process(i + 1, arrivalTime, burstTime);
+        }
+
+        // Sort processes based on arrival time
+        Arrays.sort(processes, (p1, p2) -> p1.arrivalTime - p2.arrivalTime);
+
+        // Calculate finish time, turnaround time, and waiting time
+        calculateTimes(processes);
+
+        // Display the results
+        displayResults(processes);
+    }
+
+    // Function to calculate finish time, turnaround time, and waiting time
+    private static void calculateTimes(Process[] processes) {
+        int currentTime = 0;
+    
+        for (Process process : processes) {
+            // Process starts after the previous process finishes or at its arrival time
+            process.finishTime = Math.max(currentTime, process.arrivalTime) + process.burstTime;
+            process.turnaroundTime = process.finishTime - process.arrivalTime;
+            process.waitingTime = process.turnaroundTime - process.burstTime;
+    
+            // Move the current time forward
+            currentTime = process.finishTime;
+        }
+    }
+    
+    // Function to display results
+    private static void displayResults(Process[] processes) {
+        System.out.println("Process\tArrival Time\tBurst Time\tFinish Time\tTurnaround Time\tWaiting Time");
+        for (Process process : processes) {
+            System.out.printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n",
+                    process.processId, process.arrivalTime, process.burstTime,
+                    process.finishTime, process.turnaroundTime, process.waitingTime);
+        }
+    }
+}

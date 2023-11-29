@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Check if at least one argument is provided
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 <arg1> [arg2] [arg3] ..."
+    exit 1
+fi
+
+# Display the total number of arguments
+echo "Total number of arguments: $#"
+
+# Display each command-line argument
+echo "Command-line arguments:"
+for arg in "$@"; do
+    echo "$arg"
+done

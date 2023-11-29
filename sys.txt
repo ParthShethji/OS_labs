@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main() {
+    // Using fork to create a new process
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid == 0) {
+        // This code is executed by the child process
+
+        // Using write to output a message to the console
+        write(STDOUT_FILENO, "Child process is running.\n", 26);
+
+        // Exiting the child process
+        exit(EXIT_SUCCESS);
+    } else {
+        // This code is executed by the parent process
+
+        // Using wait to wait for the child process to exit
+        wait(NULL);
+
+        // Using read to input a message from the console
+        char buffer[50];
+        write(STDOUT_FILENO, "Enter a message: ", 18);
+        read(STDIN_FILENO, buffer, sizeof(buffer));
+
+        // Using write to output the entered message
+        write(STDOUT_FILENO, "You entered: ", 13);
+        write(STDOUT_FILENO, buffer, sizeof(buffer));
+
+        // Exiting the parent process
+        exit(EXIT_SUCCESS);
+    }
+
+    return 0;
+}
+
+
+-------------
+
+
+#include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+
+using namespace std;
+
+int main() {
+    // Write
+    int n;
+    cout << "Write System Call:"<<endl;
+    n = write(1, "Hello", 5);
+    cout << "\n";
+    write(1, "Hello", 2); // prints only 2 characters
+    cout << "\n";
+
+    // write(1, "Hello", 20); // Causes buffer overflow, commented out
+    cout << "\n";
+    cout << "Value of n is " << n << endl;
+
+    cout << "\n";
+    cout << "Read System Call:"<<endl;
+    // Read
+    // We cannot read directly; first, we have to store it in some memory (buffer)
+    int m;
+    char b[30]; // memory (buffer) max storage: 30
+    m = read(0, b, 30);
+    write(1, b, m);
+
+    return 0;
+}

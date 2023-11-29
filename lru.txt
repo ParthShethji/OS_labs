@@ -1,0 +1,65 @@
+import java.util.*;
+
+public class LRU {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of frames: ");
+        int numFrames = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("Enter the reference string (e.g., 1 2 3 4): ");
+        String[] referenceString = scanner.nextLine().split(" ");
+
+        int[] pages = new int[referenceString.length];
+        for (int i = 0; i < referenceString.length; i++) {
+            pages[i] = Integer.parseInt(referenceString[i]);
+        }
+
+        int pageFaults = calculatePageFaults(pages, numFrames);
+        System.out.println("Number of Page Faults: " + pageFaults);
+    }
+
+    private static int calculatePageFaults(int[] pages, int numFrames) {
+        Set<Integer> frameSet = new LinkedHashSet<>();  // Use LinkedHashSet to maintain insertion order
+        Map<Integer, Integer> pageLastUsed = new HashMap<>();
+        int pageFaults = 0;
+
+        for (int page : pages) {
+            if (!frameSet.contains(page)) {
+                if (frameSet.size() < numFrames) {
+                    frameSet.add(page);
+                } else {
+                    int lruPage = findLRUPage(frameSet, pageLastUsed);
+                    frameSet.remove(lruPage);
+                    frameSet.add(page);
+                }
+                pageFaults++;
+            }
+            updateLastUsed(pageLastUsed, page);
+            // Print the current state of the frames
+            System.out.println("Frames: " + frameSet);
+        }
+
+        return pageFaults;
+    }
+
+    private static int findLRUPage(Set<Integer> frameSet, Map<Integer, Integer> pageLastUsed) {
+        int minLastUsed = Integer.MAX_VALUE;
+        int lruPage = -1;
+
+        for (int page : frameSet) {
+            if (pageLastUsed.get(page) < minLastUsed) {
+                minLastUsed = pageLastUsed.get(page);
+                lruPage = page;
+            }
+        }
+
+        return lruPage;
+    }
+
+    private static void updateLastUsed(Map<Integer, Integer> pageLastUsed, int page) {
+        pageLastUsed.put(page, pageLastUsed.size());
+    }
+}
+Enter the number of frames: 4
+Enter the reference string (e.g., 1 2 3 4): 7 0 1 2 0 3 0 4 2 3 0 3 2
